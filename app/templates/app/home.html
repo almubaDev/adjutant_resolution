@@ -1,0 +1,33 @@
+{% extends 'app/base.html' %}
+{% load static %}
+
+{% block title %}Inicio - Kufi{% endblock %}
+
+{% block content %}
+<div class="flex flex-col items-center justify-center min-h-screen px-4 py-12 gap-6 text-center">
+
+    <!-- Imagen de Kufi animado arriba -->
+    <img id="kufi-icon" src="{% static 'img/kufi/kufi_default.gif' %}" alt="Kufi" class="w-32 h-32 mb-6">
+
+    <!-- Título principal -->
+    <h1 class="text-2xl sm:text-3xl font-semibold text-gray-800">
+        Bienvenidos a <span class="Brand">Kufi</span>
+    </h1>
+
+    <!-- Frase inspiradora limpia -->
+    <p class="text-sm sm:text-base text-gray-600 mt-2">
+        Trabaja por ti mientras tomas un café
+    </p>
+
+    <!-- Botones de navegación -->
+    <div class="flex flex-col sm:flex-row gap-4 mt-6">
+        <a href="{% url 'users:login' %}" class="bg-[#675D50] text-white text-sm px-5 py-2 rounded-md shadow hover:bg-[#574a40] transition">
+            Iniciar Sesión
+        </a>
+        <a href="{% url 'users:register' %}" class="bg-white border border-[#A9907E] text-[#675D50] text-sm px-5 py-2 rounded-md hover:bg-[#f3deba] transition">
+            Registrarse
+        </a>
+    </div>
+
+</div>
+{% endblock %}

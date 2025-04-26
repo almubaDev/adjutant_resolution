@@ -1,0 +1,61 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>{% block title %}Adjutant Resolution{% endblock %}</title>
+
+    <!-- TailwindCSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- FontAwesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    
+    <!-- Reemplaza your_kit_id con tu kit real de FontAwesome -->
+
+    <!-- Estilos generales -->
+    <link rel="stylesheet" href="{% static 'style/base.css' %}">
+
+
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body class="min-h-screen flex flex-col">
+    {% if messages %}
+      <div class="p-4">
+        {% for message in messages %}
+          <div class="message {{ message.tags }} p-4 mb-4 rounded-lg text-center text-white">
+            {{ message }}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    {% block content %}{% endblock %}
+    
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+          const kufiImages = [
+              "{% static 'img/kufi/magical-animation.gif' %}",
+              "{% static 'img/kufi/magical-animation (1).gif' %}",
+              "{% static 'img/kufi/magical-animation (2).gif' %}",
+              "{% static 'img/kufi/magical-animation (3).gif' %}",
+              "{% static 'img/kufi/magical-animation (5).gif' %}",
+              "{% static 'img/kufi/magical-animation (6).gif' %}",
+              "{% static 'img/kufi/magical-animation (7).gif' %}",
+          ];
+          
+          const kufiIcon = document.getElementById('kufi-icon');
+          
+          if (kufiIcon) {
+              const randomIndex = Math.floor(Math.random() * kufiImages.length);
+              kufiIcon.src = kufiImages[randomIndex];
+          }
+      });
+  </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

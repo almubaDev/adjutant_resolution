@@ -1,0 +1,112 @@
+:root {
+    --color-primary: #ABC4AA; /* verde matcha */
+    --color-secondary: #A9907E; /* marrón suave */
+    --color-background: #F3DEBA; /* crema */
+    --color-text: #675D50; /* café oscuro */
+}
+
+body {
+    font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--color-background);
+    color: var(--color-text);
+    margin: 0;
+    padding: 0;
+}
+.message {
+    font-weight: bold;
+}
+.message.success {
+    background-color: #ABC4AA; /* verde éxito COFI */
+}
+.message.error {
+    background-color: #E57373; /* rojo error */
+}
+.message.warning {
+    background-color: #FFB74D; /* naranja advertencia */
+}
+.message.info {
+    background-color: #64B5F6; /* azul informativo */
+}
+
+
+h1, h2, h3 {
+    font-weight: bold;
+    color: var(--color-text);
+}
+
+.btn-primary {
+    background-color: var(--color-primary);
+    color: var(--color-text);
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: bold;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-primary:hover {
+    background-color: var(--color-secondary);
+    color: #ffffff;
+}
+
+/* 🆕 Nuevo estilo para los inputs */
+.input-field {
+    width: 100%;
+    padding: 10px 12px; /* padding general, incluye padding a la izquierda */
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background-color: #ffffff;
+    color: var(--color-text);
+    font-size: 1rem;
+    outline: none; /* eliminar el outline feo */
+    transition: border-color 0.3s ease;
+}
+
+.input-field:focus {
+    border-color: var(--color-primary); /* Border bonito al hacer foco */
+}
+
+.brand {
+    color: var(--color-primary);
+}
+.menu-button {
+    display: block;
+    width: 100%;
+    padding: 14px 20px;
+    background-color: var(--color-primary);
+    color: var(--color-text);
+    text-align: center;
+    font-weight: bold;
+    border-radius: 8px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    text-decoration: none;
+}
+
+.menu-button:hover {
+    background-color: var(--color-secondary);
+    color: white;
+}
+
+
+/* Canvas translúcido con desenfoque */
+#canvasMenu {
+    background-color: rgba(255, 255, 255, 0.85) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+  }
+
+@keyframes slide-x {
+    0%, 100% {
+      transform: translateX(0);
+    }
+    50% {
+      transform: translateX(-4px);
+    }
+  }
+  
+  .animate-slide-x {
+    animation: slide-x 2s infinite ease-in-out;
+  }
+  

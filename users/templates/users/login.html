@@ -1,0 +1,41 @@
+{% extends 'app/base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}Iniciar Sesión - Resuelve{% endblock %}
+
+{% block content %}
+<div class="flex flex-col items-center justify-center min-h-screen px-8 py-12 gap-6 text-center">
+
+    <h1 class="text-2xl sm:text-3xl font-semibold text-gray-800 mb-4">
+        Iniciar Sesión
+    </h1>
+
+    <!-- Formulario respetando navegación -->
+    <form method="POST" class="w-full max-w-sm flex flex-col gap-4">
+        {% csrf_token %}
+        
+        {% for field in form %}
+        <div class="flex flex-col text-left">
+            {{ field.label_tag }}
+            {{ field|add_class:"w-full px-4 py-2 border border-gray-300 rounded-md text-sm text-gray-700 focus:ring-[#A9907E] focus:border-[#A9907E] focus:outline-none" }}
+            {% if field.errors %}
+                <p class="text-red-600 text-xs mt-1">{{ field.errors }}</p>
+            {% endif %}
+        </div>
+        {% endfor %}
+
+        <button type="submit" class="mt-6 bg-[#675D50] text-white text-sm px-5 py-2 rounded-md shadow hover:bg-[#574a40] transition">
+            Entrar
+        </button>
+    </form>
+
+    <p class="mt-4 text-sm text-gray-600">
+        ¿No tienes cuenta? 
+        <a href="{% url 'users:register' %}" class="text-[#675D50] font-medium hover:underline">
+            Regístrate aquí
+        </a>
+    </p>
+
+</div>
+{% endblock %}

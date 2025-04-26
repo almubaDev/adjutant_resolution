@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Diagrama Modular Kufi</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #0f172a;
+      font-family: 'Segoe UI', sans-serif;
+      overflow-x: auto;
+      overflow-y: hidden;
+      padding: 20px;
+    }
+    .diagram {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 100px;
+      position: relative;
+      height: 600px;
+      min-width: 1600px;
+    }
+    .node {
+      background-color: #1e293b;
+      border: 2px solid #64748b;
+      border-radius: 12px;
+      width: 220px;
+      height: 140px;
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      color: #f1f5f9;
+      box-shadow: 0px 4px 10px rgba(0,0,0,0.5);
+      font-size: 1rem;
+      text-align: center;
+    }
+    .node-title {
+      font-weight: bold;
+      margin-bottom: 8px;
+      color: #7dd3fc;
+    }
+    .tech {
+      font-size: 0.8rem;
+      color: #94a3b8;
+    }
+    svg.arrow-line {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 600px;
+      pointer-events: none;
+    }
+    .arrow-path {
+      stroke: #38bdf8;
+      stroke-width: 2.5;
+      fill: none;
+      marker-end: url(#arrowhead);
+    }
+  </style>
+</head>
+<body>
+
+<div class="relative">
+  <div class="diagram" id="diagram">
+    <div class="node" id="user">
+      <div class="node-title">Usuario</div>
+      <div class="tech">Texto / Voz</div>
+    </div>
+
+    <div class="node" id="pwa">
+      <div class="node-title">Django PWA</div>
+      <div class="tech">HTML5, Django</div>
+    </div>
+
+    <div class="node" id="kufi">
+      <div class="node-title">Kufi Core</div>
+      <div class="tech">Python + LangChain</div>
+    </div>
+
+    <div class="node" id="assistant">
+      <div class="node-title">Diary Assistant</div>
+      <div class="tech">Python API</div>
+    </div>
+
+    <div class="node" id="calendar">
+      <div class="node-title">Google Calendar</div>
+      <div class="tech">OAuth2 + REST API</div>
+    </div>
+  </div>
+
+  <svg class="arrow-line">
+    <defs>
+      <marker id="arrowhead" markerWidth="10" markerHeight="7" 
+        refX="10" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#38bdf8" />
+      </marker>
+    </defs>
+    <path id="line1" class="arrow-path"/>
+    <path id="line2" class="arrow-path"/>
+    <path id="line3" class="arrow-path"/>
+    <path id="line4" class="arrow-path"/>
+  </svg>
+</div>
+
+<script>
+function connect(from, to, pathId) {
+  const fromNode = document.getElementById(from).getBoundingClientRect();
+  const toNode = document.getElementById(to).getBoundingClientRect();
+  const svg = document.querySelector('.arrow-line').getBoundingClientRect();
+
+  const startX = fromNode.left + fromNode.width;
+  const startY = fromNode.top + fromNode.height/2;
+  const endX = toNode.left;
+  const endY = toNode.top + toNode.height/2;
+
+  const relativeStartX = startX - svg.left;
+  const relativeStartY = startY - svg.top;
+  const relativeEndX = endX - svg.left;
+  const relativeEndY = endY - svg.top;
+
+  const path = document.getElementById(pathId);
+  path.setAttribute('d', `M${relativeStartX},${relativeStartY} C${relativeStartX+50},${relativeStartY} ${relativeEndX-50},${relativeEndY} ${relativeEndX},${relativeEndY}`);
+}
+
+window.onload = () => {
+  connect('user', 'pwa', 'line1');
+  connect('pwa', 'kufi', 'line2');
+  connect('kufi', 'assistant', 'line3');
+  connect('assistant', 'calendar', 'line4');
+};
+</script>
+
+</body>
+</html>
