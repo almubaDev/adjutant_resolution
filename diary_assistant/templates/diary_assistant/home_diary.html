@@ -1,0 +1,46 @@
+{% extends 'kufi_core/kufi_base.html' %}
+
+{% block title %}Agenda Inteligente - Diario Assistant{% endblock %}
+
+{% block content %}
+<div class="px-8 py-6">
+
+    <!-- Título principal -->
+    <div class="text-center mb-10">
+        <h1 class="text-4xl font-bold text-cyan-300">Agenda Inteligente</h1>
+        <p class="text-lg text-gray-400 mt-4">Gestiona todos tus eventos desde un solo lugar.</p>
+    </div>
+
+    <!-- Acciones principales -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center mb-16">
+        <a href="#" class="bg-slate-700 hover:bg-slate-600 p-6 rounded-lg flex flex-col items-center justify-center transition shadow-lg">
+            <i class="fas fa-plus-circle text-4xl text-green-400 mb-4"></i>
+            <span class="text-gray-300 font-semibold">Crear Evento</span>
+        </a>
+        <a href="#" class="bg-slate-700 hover:bg-slate-600 p-6 rounded-lg flex flex-col items-center justify-center transition shadow-lg">
+            <i class="fas fa-calendar-alt text-4xl text-blue-400 mb-4"></i>
+            <span class="text-gray-300 font-semibold">Ver Agenda</span>
+        </a>
+        <a href="#" class="bg-slate-700 hover:bg-slate-600 p-6 rounded-lg flex flex-col items-center justify-center transition shadow-lg">
+            <i class="fas fa-edit text-4xl text-yellow-400 mb-4"></i>
+            <span class="text-gray-300 font-semibold">Actualizar Evento</span>
+        </a>
+        <a href="#" class="bg-slate-700 hover:bg-slate-600 p-6 rounded-lg flex flex-col items-center justify-center transition shadow-lg">
+            <i class="fas fa-trash-alt text-4xl text-red-400 mb-4"></i>
+            <span class="text-gray-300 font-semibold">Eliminar Evento</span>
+        </a>
+    </div>
+
+    <!-- Panel de Eventos -->
+    <div class="bg-slate-800 rounded-lg p-8 shadow-xl">
+        <h2 class="text-2xl font-bold text-cyan-200 mb-6">Eventos Programados</h2>
+        
+        <!-- Aquí se cargarán dinámicamente los eventos -->
+        <div class="text-gray-400 text-center">
+            <p>No hay eventos cargados todavía.</p>
+            <p class="mt-2 text-sm text-gray-500">Conéctate para sincronizar tu calendario.</p>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

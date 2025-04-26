@@ -1,140 +1,537 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Diagrama Modular Kufi</title>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
-  <style>
-    body {
-      background-color: #0f172a;
-      font-family: 'Segoe UI', sans-serif;
-      overflow-x: auto;
-      overflow-y: hidden;
-      padding: 20px;
-    }
-    .diagram {
-      display: flex;
-      align-items: center;
-      justify-content: flex-start;
-      gap: 100px;
-      position: relative;
-      height: 600px;
-      min-width: 1600px;
-    }
-    .node {
-      background-color: #1e293b;
-      border: 2px solid #64748b;
-      border-radius: 12px;
-      width: 220px;
-      height: 140px;
-      padding: 15px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      position: relative;
-      color: #f1f5f9;
-      box-shadow: 0px 4px 10px rgba(0,0,0,0.5);
-      font-size: 1rem;
-      text-align: center;
-    }
-    .node-title {
-      font-weight: bold;
-      margin-bottom: 8px;
-      color: #7dd3fc;
-    }
-    .tech {
-      font-size: 0.8rem;
-      color: #94a3b8;
-    }
-    svg.arrow-line {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 600px;
-      pointer-events: none;
-    }
-    .arrow-path {
-      stroke: #38bdf8;
-      stroke-width: 2.5;
-      fill: none;
-      marker-end: url(#arrowhead);
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arquitectura Kufi - Flujos Visibles</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #0a0a15;
+            overflow-x: hidden;
+        }
+        
+        .diagram-container {
+            position: relative;
+            background: #121224;
+            background-image: radial-gradient(#1e293b20 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        
+        .node {
+            position: absolute;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            z-index: 10;
+        }
+        
+        .node:hover {
+            transform: translateY(-5px);
+            z-index: 20;
+        }
+        
+        .node-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.4);
+        }
+        
+        .connection-label {
+            position: absolute;
+            background: rgba(10, 10, 20, 0.85);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+            white-space: nowrap;
+            z-index: 5;
+            pointer-events: none;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* Estilos adicionales para destacar las líneas de flujo */
+        .flow-line {
+            position: absolute;
+            height: 2px;
+            background: linear-gradient(to right, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.1));
+            transform-origin: left center;
+            z-index: 5;
+        }
+        
+        .flow-outbound {
+            background: linear-gradient(90deg, #3b82f6, #10b981);
+        }
+        
+        .flow-inbound {
+            background: linear-gradient(90deg, #f97316, #3b82f6);
+        }
+        
+        .flow-future {
+            opacity: 0.5;
+        }
+        
+        .flow-arrow {
+            position: absolute;
+            width: 0;
+            height: 0;
+            z-index: 6;
+        }
+        
+        .flow-arrow-outbound {
+            border-top: 6px solid transparent;
+            border-bottom: 6px solid transparent;
+            border-left: 8px solid #10b981;
+        }
+        
+        .flow-arrow-inbound {
+            border-top: 6px solid transparent;
+            border-bottom: 6px solid transparent;
+            border-left: 8px solid #f97316;
+        }
+        
+        /* Particle effects for flow */
+        .particle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            z-index: 7;
+            transform: translateY(-50%);
+            filter: blur(1px);
+            pointer-events: none;
+        }
+        
+        .particle-outbound {
+            background: #3b82f6;
+            box-shadow: 0 0 6px #3b82f6;
+            animation: flowRight 3s infinite linear;
+        }
+        
+        .particle-inbound {
+            background: #f97316;
+            box-shadow: 0 0 6px #f97316;
+            animation: flowLeft 3s infinite linear;
+        }
+        
+        @keyframes flowRight {
+            0% {
+                left: 0%;
+                opacity: 0;
+            }
+            20% {
+                opacity: 1;
+            }
+            80% {
+                opacity: 1;
+            }
+            100% {
+                left: 100%;
+                opacity: 0;
+            }
+        }
+        
+        @keyframes flowLeft {
+            0% {
+                left: 100%;
+                opacity: 0;
+            }
+            20% {
+                opacity: 1;
+            }
+            80% {
+                opacity: 1;
+            }
+            100% {
+                left: 0%;
+                opacity: 0;
+            }
+        }
+        
+        /* Tooltip */
+        .tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            max-width: 280px;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
+        }
+    </style>
 </head>
-<body>
-
-<div class="relative">
-  <div class="diagram" id="diagram">
-    <div class="node" id="user">
-      <div class="node-title">Usuario</div>
-      <div class="tech">Texto / Voz</div>
+<body class="text-white p-4">
+    <div class="max-w-6xl mx-auto">
+        <h1 class="text-3xl font-bold text-center my-6 text-blue-300">Arquitectura Modular de Kufi</h1>
+        <div class="mb-2 text-center text-gray-400 text-sm">Sistema de IA basado en agentes con flujos de comunicación bidireccionales</div>
+        
+        <!-- Diagrama -->
+        <div class="diagram-container relative rounded-lg border border-gray-800 mb-8" style="height: 520px;">
+            <!-- Flujo de ida - horizontal principal -->
+            <div class="flow-line flow-outbound" style="top: 120px; left: 100px; width: 760px;"></div>
+            
+            <!-- Flujo de vuelta - horizontal principal -->
+            <div class="flow-line flow-inbound" style="top: 380px; left: 100px; width: 760px;"></div>
+            
+            <!-- Flujo de ida - rama a diary -->
+            <div class="flow-line flow-outbound" style="top: 120px; left: 500px; width: 120px; transform: rotate(-45deg); transform-origin: left center;"></div>
+            
+            <!-- Flujo de ida - diary a google -->
+            <div class="flow-line flow-outbound" style="top: 50px; left: 620px; width: 140px;"></div>
+            
+            <!-- Flujo de vuelta - google a diary -->
+            <div class="flow-line flow-inbound" style="top: 80px; left: 620px; width: 140px;"></div>
+            
+            <!-- Flujo de vuelta - diary a core -->
+            <div class="flow-line flow-inbound" style="top: 120px; left: 500px; width: 120px; transform: rotate(45deg); transform-origin: left center;"></div>
+            
+            <!-- Flujo futuro - ida - core a email -->
+            <div class="flow-line flow-outbound flow-future" style="top: 250px; left: 500px; width: 120px; transform: rotate(45deg); transform-origin: left center;"></div>
+            
+            <!-- Flujo futuro - ida - email a gmail -->
+            <div class="flow-line flow-outbound flow-future" style="top: 320px; left: 620px; width: 140px;"></div>
+            
+            <!-- Flujo futuro - vuelta - gmail a email -->
+            <div class="flow-line flow-inbound flow-future" style="top: 350px; left: 620px; width: 140px;"></div>
+            
+            <!-- Flujo futuro - vuelta - email a core -->
+            <div class="flow-line flow-inbound flow-future" style="top: 350px; left: 500px; width: 120px; transform: rotate(-45deg); transform-origin: left center;"></div>
+            
+            <!-- Flechas de dirección - principal ida -->
+            <div class="flow-arrow flow-arrow-outbound" style="top: 116px; left: 860px;"></div>
+            <div class="flow-arrow flow-arrow-outbound" style="top: 116px; left: 300px;"></div>
+            <div class="flow-arrow flow-arrow-outbound" style="top: 116px; left: 500px;"></div>
+            
+            <!-- Flechas de dirección - principal vuelta -->
+            <div class="flow-arrow flow-arrow-inbound" style="top: 376px; left: 100px; transform: rotate(180deg);"></div>
+            <div class="flow-arrow flow-arrow-inbound" style="top: 376px; left: 700px; transform: rotate(180deg);"></div>
+            <div class="flow-arrow flow-arrow-inbound" style="top: 376px; left: 500px; transform: rotate(180deg);"></div>
+            
+            <!-- Flechas de dirección - ramas -->
+            <div class="flow-arrow flow-arrow-outbound" style="top: 30px; left: 620px; transform: rotate(-45deg);"></div>
+            <div class="flow-arrow flow-arrow-outbound" style="top: 46px; left: 760px;"></div>
+            <div class="flow-arrow flow-arrow-inbound" style="top: 76px; left: 620px; transform: rotate(180deg);"></div>
+            <div class="flow-arrow flow-arrow-inbound" style="top: 105px; left: 500px; transform: rotate(135deg);"></div>
+            
+            <!-- Flechas futuras -->
+            <div class="flow-arrow flow-arrow-outbound flow-future" style="top: 230px; left: 620px; transform: rotate(45deg);"></div>
+            <div class="flow-arrow flow-arrow-outbound flow-future" style="top: 316px; left: 760px;"></div>
+            <div class="flow-arrow flow-arrow-inbound flow-future" style="top: 346px; left: 620px; transform: rotate(180deg);"></div>
+            <div class="flow-arrow flow-arrow-inbound flow-future" style="top: 375px; left: 500px; transform: rotate(225deg);"></div>
+            
+            <!-- Partículas animadas - flujo ida principal -->
+            <div class="particle particle-outbound" style="top: 120px; left: 100px; animation-delay: 0s;"></div>
+            <div class="particle particle-outbound" style="top: 120px; left: 100px; animation-delay: 1s;"></div>
+            <div class="particle particle-outbound" style="top: 120px; left: 100px; animation-delay: 2s;"></div>
+            
+            <!-- Partículas animadas - flujo vuelta principal -->
+            <div class="particle particle-inbound" style="top: 380px; left: 860px; animation-delay: 0.5s;"></div>
+            <div class="particle particle-inbound" style="top: 380px; left: 860px; animation-delay: 1.5s;"></div>
+            <div class="particle particle-inbound" style="top: 380px; left: 860px; animation-delay: 2.5s;"></div>
+            
+            <!-- Partículas futuras -->
+            <div class="particle particle-outbound flow-future" style="top: 250px; left: 500px; animation-delay: 0.7s;"></div>
+            <div class="particle particle-inbound flow-future" style="top: 350px; left: 620px; animation-delay: 2.2s;"></div>
+            
+            <!-- Etiquetas de conexiones -->
+            <div class="connection-label" style="top: 90px; left: 200px;">Texto/Voz</div>
+            <div class="connection-label" style="top: 90px; left: 400px;">Petición</div>
+            <div class="connection-label" style="top: 50px; left: 540px;">Instrucción</div>
+            <div class="connection-label" style="top: 25px; left: 690px;">API Call</div>
+            
+            <div class="connection-label" style="top: 410px; left: 200px;">Interfaz/Feedback</div>
+            <div class="connection-label" style="top: 410px; left: 400px;">Respuesta</div>
+            <div class="connection-label" style="top: 100px; left: 560px;">Resultado</div>
+            <div class="connection-label" style="top: 105px; left: 690px;">Datos</div>
+            
+            <div class="connection-label flow-future" style="top: 220px; left: 540px;">Instrucción</div>
+            <div class="connection-label flow-future" style="top: 295px; left: 690px;">API Call</div>
+            <div class="connection-label flow-future" style="top: 375px; left: 690px;">Datos</div>
+            <div class="connection-label flow-future" style="top: 390px; left: 540px;">Resultado</div>
+            
+            <!-- Nodos -->
+            <!-- Usuario -->
+            <div class="node" style="top: 240px; left: 100px;">
+                <div class="node-icon bg-blue-900 border-2 border-blue-600">
+                    <i class="fas fa-user text-blue-200 text-2xl"></i>
+                </div>
+                <div class="text-center mt-2 text-blue-400 text-sm font-medium">Usuario</div>
+                <div class="text-center text-xs text-gray-500">Texto/Voz</div>
+            </div>
+            
+            <!-- Frontend -->
+            <div class="node" style="top: 240px; left: 300px;">
+                <div class="node-icon bg-green-900 border-2 border-green-600">
+                    <i class="fab fa-python text-green-200 text-2xl"></i>
+                </div>
+                <div class="text-center mt-2 text-green-400 text-sm font-medium">Django PWA</div>
+                <div class="text-center text-xs text-gray-500">Frontend</div>
+            </div>
+            
+            <!-- Kufi Core -->
+            <div class="node" style="top: 240px; left: 500px;">
+                <div class="node-icon bg-yellow-900 border-2 border-yellow-600">
+                    <i class="fas fa-mug-hot text-yellow-200 text-2xl"></i>
+                </div>
+                <div class="text-center mt-2 text-yellow-400 text-sm font-medium">Kufi Core</div>
+                <div class="text-center text-xs text-gray-500">Orquestador</div>
+            </div>
+            
+            <!-- Diary Assistant -->
+            <div class="node" style="top: 70px; left: 620px;">
+                <div class="node-icon bg-orange-900 border-2 border-orange-600">
+                    <i class="fas fa-calendar-alt text-orange-200 text-2xl"></i>
+                </div>
+                <div class="text-center mt-2 text-orange-400 text-sm font-medium">Diary Assistant</div>
+                <div class="text-center text-xs text-gray-500">Calendario</div>
+            </div>
+            
+            <!-- Google Calendar -->
+            <div class="node" style="top: 70px; left: 760px;">
+                <div class="node-icon bg-red-900 border-2 border-red-600">
+                    <i class="fab fa-google text-red-200 text-2xl"></i>
+                </div>
+                <div class="text-center mt-2 text-red-400 text-sm font-medium">Google Calendar</div>
+                <div class="text-center text-xs text-gray-500">API Externa</div>
+            </div>
+            
+            <!-- Email Assistant (futuro) -->
+            <div class="node opacity-60" style="top: 330px; left: 620px;">
+                <div class="node-icon bg-indigo-900 border-2 border-indigo-600">
+                    <i class="fas fa-envelope text-indigo-200 text-2xl"></i>
+                </div>
+                <div class="text-center mt-2 text-indigo-400 text-sm font-medium">Email Assistant</div>
+                <div class="text-center text-xs text-gray-500">Futuro</div>
+            </div>
+            
+            <!-- Gmail API (futuro) -->
+            <div class="node opacity-60" style="top: 330px; left: 760px;">
+                <div class="node-icon bg-purple-900 border-2 border-purple-600">
+                    <i class="fas fa-inbox text-purple-200 text-2xl"></i>
+                </div>
+                <div class="text-center mt-2 text-purple-400 text-sm font-medium">Gmail API</div>
+                <div class="text-center text-xs text-gray-500">Futuro</div>
+            </div>
+        </div>
+        
+        <!-- Leyenda del diagrama -->
+        <div class="bg-gray-900 bg-opacity-70 backdrop-filter backdrop-blur-sm rounded-lg border border-gray-800 p-4 mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <h3 class="text-lg font-bold mb-4 text-blue-300 flex items-center">
+                        <div class="w-10 h-1 bg-gradient-to-r from-blue-500 to-green-500 rounded-full mr-3"></div>
+                        Flujo de Solicitudes (Ida)
+                    </h3>
+                    <ul class="space-y-3">
+                        <li class="flex items-start">
+                            <div class="w-5 h-5 rounded-full bg-blue-900 border border-blue-600 flex items-center justify-center mr-2 mt-0.5">
+                                <i class="fas fa-user text-blue-200 text-xs"></i>
+                            </div>
+                            <div>
+                                <span class="text-sm text-blue-400">Usuario</span>
+                                <span class="mx-2 text-gray-500">→</span>
+                                <span class="text-sm text-green-400">Django PWA</span>
+                                <p class="text-xs text-gray-500">Entrada de texto o voz del usuario</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <div class="w-5 h-5 rounded-full bg-green-900 border border-green-600 flex items-center justify-center mr-2 mt-0.5">
+                                <i class="fab fa-python text-green-200 text-xs"></i>
+                            </div>
+                            <div>
+                                <span class="text-sm text-green-400">Django PWA</span>
+                                <span class="mx-2 text-gray-500">→</span>
+                                <span class="text-sm text-yellow-400">Kufi Core</span>
+                                <p class="text-xs text-gray-500">Petición formateada al orquestador</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <div class="w-5 h-5 rounded-full bg-yellow-900 border border-yellow-600 flex items-center justify-center mr-2 mt-0.5">
+                                <i class="fas fa-mug-hot text-yellow-200 text-xs"></i>
+                            </div>
+                            <div>
+                                <span class="text-sm text-yellow-400">Kufi Core</span>
+                                <span class="mx-2 text-gray-500">→</span>
+                                <span class="text-sm text-orange-400">Diary Assistant</span>
+                                <p class="text-xs text-gray-500">Instrucciones para gestión de calendario</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <div class="w-5 h-5 rounded-full bg-orange-900 border border-orange-600 flex items-center justify-center mr-2 mt-0.5">
+                                <i class="fas fa-calendar-alt text-orange-200 text-xs"></i>
+                            </div>
+                            <div>
+                                <span class="text-sm text-orange-400">Diary Assistant</span>
+                                <span class="mx-2 text-gray-500">→</span>
+                                <span class="text-sm text-red-400">Google Calendar</span>
+                                <p class="text-xs text-gray-500">Llamadas REST a API externa con OAuth2</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-bold mb-4 text-orange-300 flex items-center">
+                        <div class="w-10 h-1 bg-gradient-to-r from-orange-500 to-blue-500 rounded-full mr-3"></div>
+                        Flujo de Respuestas (Vuelta)
+                    </h3>
+                    <ul class="space-y-3">
+                        <li class="flex items-start">
+                            <div class="w-5 h-5 rounded-full bg-red-900 border border-red-600 flex items-center justify-center mr-2 mt-0.5">
+                                <i class="fab fa-google text-red-200 text-xs"></i>
+                            </div>
+                            <div>
+                                <span class="text-sm text-red-400">Google Calendar</span>
+                                <span class="mx-2 text-gray-500">→</span>
+                                <span class="text-sm text-orange-400">Diary Assistant</span>
+                                <p class="text-xs text-gray-500">Datos de eventos y confirmaciones</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <div class="w-5 h-5 rounded-full bg-orange-900 border border-orange-600 flex items-center justify-center mr-2 mt-0.5">
+                                <i class="fas fa-calendar-alt text-orange-200 text-xs"></i>
+                            </div>
+                            <div>
+                                <span class="text-sm text-orange-400">Diary Assistant</span>
+                                <span class="mx-2 text-gray-500">→</span>
+                                <span class="text-sm text-yellow-400">Kufi Core</span>
+                                <p class="text-xs text-gray-500">Resultados de las operaciones realizadas</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <div class="w-5 h-5 rounded-full bg-yellow-900 border border-yellow-600 flex items-center justify-center mr-2 mt-0.5">
+                                <i class="fas fa-mug-hot text-yellow-200 text-xs"></i>
+                            </div>
+                            <div>
+                                <span class="text-sm text-yellow-400">Kufi Core</span>
+                                <span class="mx-2 text-gray-500">→</span>
+                                <span class="text-sm text-green-400">Django PWA</span>
+                                <p class="text-xs text-gray-500">Respuesta procesada y contextualizada</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <div class="w-5 h-5 rounded-full bg-green-900 border border-green-600 flex items-center justify-center mr-2 mt-0.5">
+                                <i class="fab fa-python text-green-200 text-xs"></i>
+                            </div>
+                            <div>
+                                <span class="text-sm text-green-400">Django PWA</span>
+                                <span class="mx-2 text-gray-500">→</span>
+                                <span class="text-sm text-blue-400">Usuario</span>
+                                <p class="text-xs text-gray-500">Interfaz visual, feedback al usuario</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sección tecnologías -->
+        <div class="bg-gray-900 bg-opacity-70 backdrop-filter backdrop-blur-sm rounded-lg border border-gray-800 p-4">
+            <h3 class="text-lg font-bold mb-4 text-gray-300">Tecnologías Utilizadas</h3>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="bg-gray-800 bg-opacity-60 rounded-lg p-3">
+                    <div class="flex items-center">
+                        <i class="fab fa-python text-green-400 text-lg mr-2"></i>
+                        <span class="text-sm text-gray-300">Django</span>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1">Framework web para frontend</p>
+                </div>
+                
+                <div class="bg-gray-800 bg-opacity-60 rounded-lg p-3">
+                    <div class="flex items-center">
+                        <i class="fas fa-laptop-code text-yellow-400 text-lg mr-2"></i>
+                        <span class="text-sm text-gray-300">LangChain</span>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1">Orquestación de agentes IA</p>
+                </div>
+                
+                <div class="bg-gray-800 bg-opacity-60 rounded-lg p-3">
+                    <div class="flex items-center">
+                        <i class="fas fa-key text-red-400 text-lg mr-2"></i>
+                        <span class="text-sm text-gray-300">OAuth2</span>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1">Autenticación para APIs</p>
+                </div>
+                
+                <div class="bg-gray-800 bg-opacity-60 rounded-lg p-3">
+                    <div class="flex items-center">
+                        <i class="fas fa-exchange-alt text-blue-400 text-lg mr-2"></i>
+                        <span class="text-sm text-gray-300">REST API</span>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1">Comunicación con servicios</p>
+                </div>
+            </div>
+        </div>
     </div>
-
-    <div class="node" id="pwa">
-      <div class="node-title">Django PWA</div>
-      <div class="tech">HTML5, Django</div>
-    </div>
-
-    <div class="node" id="kufi">
-      <div class="node-title">Kufi Core</div>
-      <div class="tech">Python + LangChain</div>
-    </div>
-
-    <div class="node" id="assistant">
-      <div class="node-title">Diary Assistant</div>
-      <div class="tech">Python API</div>
-    </div>
-
-    <div class="node" id="calendar">
-      <div class="node-title">Google Calendar</div>
-      <div class="tech">OAuth2 + REST API</div>
-    </div>
-  </div>
-
-  <svg class="arrow-line">
-    <defs>
-      <marker id="arrowhead" markerWidth="10" markerHeight="7" 
-        refX="10" refY="3.5" orient="auto">
-        <polygon points="0 0, 10 3.5, 0 7" fill="#38bdf8" />
-      </marker>
-    </defs>
-    <path id="line1" class="arrow-path"/>
-    <path id="line2" class="arrow-path"/>
-    <path id="line3" class="arrow-path"/>
-    <path id="line4" class="arrow-path"/>
-  </svg>
-</div>
-
-<script>
-function connect(from, to, pathId) {
-  const fromNode = document.getElementById(from).getBoundingClientRect();
-  const toNode = document.getElementById(to).getBoundingClientRect();
-  const svg = document.querySelector('.arrow-line').getBoundingClientRect();
-
-  const startX = fromNode.left + fromNode.width;
-  const startY = fromNode.top + fromNode.height/2;
-  const endX = toNode.left;
-  const endY = toNode.top + toNode.height/2;
-
-  const relativeStartX = startX - svg.left;
-  const relativeStartY = startY - svg.top;
-  const relativeEndX = endX - svg.left;
-  const relativeEndY = endY - svg.top;
-
-  const path = document.getElementById(pathId);
-  path.setAttribute('d', `M${relativeStartX},${relativeStartY} C${relativeStartX+50},${relativeStartY} ${relativeEndX-50},${relativeEndY} ${relativeEndX},${relativeEndY}`);
-}
-
-window.onload = () => {
-  connect('user', 'pwa', 'line1');
-  connect('pwa', 'kufi', 'line2');
-  connect('kufi', 'assistant', 'line3');
-  connect('assistant', 'calendar', 'line4');
-};
-</script>
-
-</body>
-</html>
+    
+    <!-- Tooltip -->
+    <div id="tooltip" class="tooltip">Información adicional</div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const nodes = document.querySelectorAll('.node');
+            const tooltip = document.getElementById('tooltip');
+            
+            // Información detallada de los nodos
+            const nodeInfo = {
+                'Usuario': {
+                    description: 'Punto de entrada al sistema. Proporciona instrucciones mediante texto o voz a través de la interfaz.',
+                    technologies: 'Input/Output: Texto, Voz, Interfaz Gráfica',
+                    role: 'Interactúa directamente con Kufi para gestionar calendarios y otras tareas'
+                },
+                'Django PWA': {
+                    description: 'Interfaz web progresiva que funciona tanto en móviles como en escritorio, incluso offline.',
+                    technologies: 'Django, HTML5, CSS, JavaScript, Progressive Web App',
+                    role: 'Presenta la interfaz de usuario y formatea las comunicaciones'
+                },
+                'Kufi Core': {
+                    description: 'Cerebro central que determina qué subagente debe atender cada solicitud. Coordina todo el sistema.',
+                    technologies: 'Python, LangChain, LLM',
+                    role: 'Orquestador central que toma decisiones y dirige subagentes'
+                },
+                'Diary Assistant': {
+                    description: 'Subagente especializado en gestión de calendarios. Crea, modifica y consulta eventos.',
+                    technologies: 'Python, Calendar API Integration',
+                    role: 'Gestiona todo lo relacionado con calendarios y eventos'
+                },
+                'Google Calendar': {
+                    description: 'API externa que permite la gestión de calendarios de Google.',
+                    technologies: 'OAuth2, REST API',
+                    role: 'Almacena y sincroniza eventos'
+                },
+                'Email Assistant': {
+                    description: 'Futuro subagente para gestión de correos. Redactará, enviará y buscará emails.',
+                    technologies: 'Python, Email API Integration',
+                    role: 'Gestión automatizada de comunicaciones por email'
+                },
+                'Gmail API': {
+                    description: 'API externa para acceder y gestionar correos de Gmail.',
+                    technologies: 'OAuth2, REST API',
+                    role: 'Proporciona acceso a la bandeja de correo'
+                }
+            };
+            
+            // Añadir tooltips a los nodos
+            nodes.forEach(node => {
+                node.addEventListener('mouseenter', function() {
+                    const nodeName = this.querySelector('.text-sm').textContent;
+                    const info = nodeInfo[nodeName];
+                    
+                    if (info) {
+                        tooltip.innerHTML = `
+                            <div class="font-bold text-sm mb-2">${nodeName}</div>
+                            <div class="text-xs mb-2">${info.description}</div>
+                            <div class="text-xs text-gray

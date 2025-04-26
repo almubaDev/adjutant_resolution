@@ -20,12 +20,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'diary_assistant',
     
     'widget_tweaks',
 
     'app',
     'users',
+    'kufi_core',
+    'diary_assistant',
     'tecnical_support',
 ]
 

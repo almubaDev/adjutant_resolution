@@ -1,0 +1,28 @@
+{% extends 'kufi_core/kufi_base.html' %}
+{% load static %}
+
+{% block title %}Panel Principal - Kufi{% endblock %}
+
+{% block content %}
+<div class="text-center mt-10">
+    <h1 class="text-4xl font-bold mb-6 text-cyan-300">Centro de Control de Kufi</h1>
+    <p class="text-lg text-gray-400 mb-8">Bienvenido al corazón de tu asistente Kufi. Desde aquí puedes gestionar agentes y configuraciones.</p>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-10">
+        <div class="bg-slate-700 rounded-lg p-6 shadow-lg hover:shadow-2xl transition">
+            <h2 class="text-2xl font-bold text-cyan-400 mb-4">Agentes</h2>
+            <p class="text-gray-300 text-sm">Gestiona y monitorea los agentes activos como Diary Assistant y más.</p>
+        </div>
+
+        <div class="bg-slate-700 rounded-lg p-6 shadow-lg hover:shadow-2xl transition">
+            <h2 class="text-2xl font-bold text-cyan-400 mb-4">Sistema</h2>
+            <p class="text-gray-300 text-sm">Visualiza el estado del sistema, logs y configuraciones principales.</p>
+        </div>
+
+        <div class="bg-slate-700 rounded-lg p-6 shadow-lg hover:shadow-2xl transition">
+            <h2 class="text-2xl font-bold text-cyan-400 mb-4">Configuración</h2>
+            <p class="text-gray-300 text-sm">Accede a parámetros avanzados de configuración de Kufi.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
