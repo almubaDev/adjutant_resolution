@@ -1,0 +1,621 @@
+{% extends 'kufi_core/kufi_base.html' %}
+{% load static %}
+
+{% block title %}Dashboard - Diary Assistant{% endblock %}
+
+{% block content %}
+<div class="p-6">
+    <h1 class="text-3xl font-bold text-cyan-300 mb-2">Dashboard de Calendario</h1>
+    <p class="text-gray-400 mb-8">Gestiona tus eventos y sincroniza con múltiples servicios de calendario</p>
+    
+    <!-- Grid principal de 4 paneles -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        <!-- Panel 1: TEST - Servicios de Calendario -->
+        <div class="bg-slate-800 rounded-lg p-6 shadow-lg">
+            <div class="flex justify-between items-start mb-4">
+                <h2 class="text-xl font-semibold text-cyan-200">Servicios de Calendario</h2>
+                <span class="px-2 py-1 text-xs bg-blue-900 text-blue-200 rounded">TEST</span>
+            </div>
+            
+            <div class="flex flex-wrap gap-4">
+                <!-- Google Calendar -->
+                <div class="flex flex-col items-center">
+                    <div id="google-calendar-btn" class="w-16 h-16 bg-gray-700 rounded-lg flex items-center justify-center cursor-pointer hover:bg-gray-600 transition-all" onclick="openGoogleCalendarModal()">
+                        <img src="{% static 'icon/google-calendar.png' %}" alt="Google Calendar" class="w-10 h-10 object-contain" onerror="this.src='https://img.icons8.com/color/48/000000/google-calendar--v2.png'">
+                    </div>
+                    <span class="text-sm text-gray-300 mt-2">Google Calendar</span>
+                </div>
+                
+                <!-- Microsoft Outlook (desactivado) -->
+                <div class="flex flex-col items-center opacity-50">
+                    <div class="w-16 h-16 bg-gray-700 rounded-lg flex items-center justify-center cursor-not-allowed">
+                        <img src="{% static 'icon/microsoft-outlook.png' %}" alt="Microsoft Outlook" class="w-10 h-10 object-contain" onerror="this.src='https://img.icons8.com/color/48/000000/microsoft-outlook-2019--v2.png'">
+                    </div>
+                    <span class="text-sm text-gray-300 mt-2">Outlook</span>
+                    <span class="text-xs text-gray-500">Próximamente</span>
+                </div>
+                
+                <!-- Apple Calendar (desactivado) -->
+                <div class="flex flex-col items-center opacity-50">
+                    <div class="w-16 h-16 bg-gray-700 rounded-lg flex items-center justify-center cursor-not-allowed">
+                        <img src="{% static 'icon/apple-calendar.png' %}" alt="Apple Calendar" class="w-10 h-10 object-contain" onerror="this.src='https://img.icons8.com/plasticine/100/000000/calendar--v2.png'">
+                    </div>
+                    <span class="text-sm text-gray-300 mt-2">Apple Calendar</span>
+                    <span class="text-xs text-gray-500">Próximamente</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Panel 2: Eventos Próximos -->
+        <div class="bg-slate-800 rounded-lg p-6 shadow-lg">
+            <h2 class="text-xl font-semibold text-cyan-200 mb-4">Eventos Próximos</h2>
+            
+            <div id="upcoming-events" class="space-y-3">
+                <div class="flex items-center justify-center h-32 text-gray-500">
+                    <p>No hay eventos próximos o no se ha conectado a ningún servicio.</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Panel 3: Estadísticas -->
+        <div class="bg-slate-800 rounded-lg p-6 shadow-lg">
+            <h2 class="text-xl font-semibold text-cyan-200 mb-4">Estadísticas</h2>
+            
+            <div class="grid grid-cols-2 gap-4">
+                <div class="bg-slate-700 p-4 rounded-lg">
+                    <div class="text-3xl font-bold text-blue-400">0</div>
+                    <div class="text-sm text-gray-400">Eventos Totales</div>
+                </div>
+                
+                <div class="bg-slate-700 p-4 rounded-lg">
+                    <div class="text-3xl font-bold text-green-400">0</div>
+                    <div class="text-sm text-gray-400">Esta Semana</div>
+                </div>
+                
+                <div class="bg-slate-700 p-4 rounded-lg">
+                    <div class="text-3xl font-bold text-yellow-400">0</div>
+                    <div class="text-sm text-gray-400">Servicios Conectados</div>
+                </div>
+                
+                <div class="bg-slate-700 p-4 rounded-lg">
+                    <div class="text-3xl font-bold text-purple-400">0</div>
+                    <div class="text-sm text-gray-400">Conflictos</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Panel 4: Actividad Reciente -->
+        <div class="bg-slate-800 rounded-lg p-6 shadow-lg">
+            <h2 class="text-xl font-semibold text-cyan-200 mb-4">Actividad Reciente</h2>
+            
+            <div id="recent-activity" class="space-y-3">
+                <div class="flex items-center justify-center h-32 text-gray-500">
+                    <p>No hay actividad reciente registrada.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal para Google Calendar -->
+    <div id="google-calendar-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-slate-800 p-6 rounded-lg shadow-xl max-w-md w-full">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-semibold text-cyan-300">
+                    <img src="{% static 'icon/google-calendar.png' %}" alt="Google Calendar" class="inline-block w-8 h-8 mr-2" onerror="this.src='https://img.icons8.com/color/48/000000/google-calendar--v2.png'">
+                    Google Calendar
+                </h3>
+                <button type="button" class="text-gray-400 hover:text-white" onclick="closeModal('google-calendar-modal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <!-- Estado de conexión -->
+            <div class="mb-6 p-4 bg-slate-700 rounded-lg">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="text-sm text-gray-400">Estado:</div>
+                        <div class="text-white">No conectado</div>
+                    </div>
+                    <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                        <i class="fas fa-link mr-2"></i>Conectar
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Acciones CRUD -->
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <button class="p-4 bg-slate-700 rounded-lg flex flex-col items-center justify-center hover:bg-slate-600 transition" onclick="openCrudModal('crear-evento')">
+                    <i class="fas fa-plus-circle text-green-400 text-2xl mb-2"></i>
+                    <span class="text-sm text-gray-300">Crear Evento</span>
+                </button>
+                
+                <button class="p-4 bg-slate-700 rounded-lg flex flex-col items-center justify-center hover:bg-slate-600 transition" onclick="openCrudModal('ver-eventos')">
+                    <i class="fas fa-calendar-day text-blue-400 text-2xl mb-2"></i>
+                    <span class="text-sm text-gray-300">Ver Eventos</span>
+                </button>
+                
+                <button class="p-4 bg-slate-700 rounded-lg flex flex-col items-center justify-center hover:bg-slate-600 transition" onclick="openCrudModal('editar-evento')">
+                    <i class="fas fa-edit text-yellow-400 text-2xl mb-2"></i>
+                    <span class="text-sm text-gray-300">Editar Evento</span>
+                </button>
+                
+                <button class="p-4 bg-slate-700 rounded-lg flex flex-col items-center justify-center hover:bg-slate-600 transition" onclick="openCrudModal('eliminar-evento')">
+                    <i class="fas fa-trash-alt text-red-400 text-2xl mb-2"></i>
+                    <span class="text-sm text-gray-300">Eliminar Evento</span>
+                </button>
+            </div>
+            
+            <div class="text-center">
+                <button class="px-4 py-2 bg-purple-700 text-white rounded-lg hover:bg-purple-600 transition w-full" onclick="openCrudModal('reagendar-evento')">
+                    <i class="fas fa-calendar-alt mr-2"></i>Reagendar Evento
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal para Crear Evento -->
+    <div id="crear-evento-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-slate-800 p-6 rounded-lg shadow-xl max-w-md w-full">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-semibold text-green-400">
+                    <i class="fas fa-plus-circle mr-2"></i>Crear Nuevo Evento
+                </h3>
+                <button type="button" class="text-gray-400 hover:text-white" onclick="closeModal('crear-evento-modal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <form id="crear-evento-form" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-1">Título del Evento</label>
+                    <input type="text" name="title" class="w-full px-3 py-2 bg-slate-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent" required>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-1">Descripción</label>
+                    <textarea name="description" rows="3" class="w-full px-3 py-2 bg-slate-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent"></textarea>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-1">Fecha de Inicio</label>
+                        <input type="date" name="start_date" class="w-full px-3 py-2 bg-slate-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-1">Hora de Inicio</label>
+                        <input type="time" name="start_time" class="w-full px-3 py-2 bg-slate-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent" required>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-1">Fecha de Fin</label>
+                        <input type="date" name="end_date" class="w-full px-3 py-2 bg-slate-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-1">Hora de Fin</label>
+                        <input type="time" name="end_time" class="w-full px-3 py-2 bg-slate-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent" required>
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-1">Ubicación</label>
+                    <input type="text" name="location" class="w-full px-3 py-2 bg-slate-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent">
+                </div>
+                
+                <div class="flex justify-end pt-4">
+                    <button type="button" class="px-4 py-2 bg-gray-600 text-gray-300 rounded-lg hover:bg-gray-500 transition mr-2" onclick="closeModal('crear-evento-modal')">Cancelar</button>
+                    <button type="button" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-500 transition">Crear Evento</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Modal para Ver Eventos -->
+    <div id="ver-eventos-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-slate-800 p-6 rounded-lg shadow-xl max-w-md w-full">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-semibold text-blue-400">
+                    <i class="fas fa-calendar-day mr-2"></i>Ver Eventos
+                </h3>
+                <button type="button" class="text-gray-400 hover:text-white" onclick="closeModal('ver-eventos-modal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="mb-4">
+                <div class="flex items-center space-x-4 mb-4">
+                    <div class="flex-1">
+                        <label class="block text-sm font-medium text-gray-400 mb-1">Período</label>
+                        <select id="time-period" name="period" class="w-full px-3 py-2 bg-slate-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent">
+                            <option value="day">Hoy</option>
+                            <option value="week" selected>Esta Semana</option>
+                            <option value="month">Este Mes</option>
+                            <option value="custom">Personalizado</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div id="custom-date-range" class="grid grid-cols-2 gap-4 hidden">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-1">Desde</label>
+                        <input type="date" name="from_date" class="w-full px-3 py-2 bg-slate-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-1">Hasta</label>
+                        <input type="date" name="to_date" class="w-full px-3 py-2 bg-slate-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent">
+                    </div>
+                </div>
+                
+                <button id="fetch-events-btn" class="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-500 transition mt-4">
+                    <i class="fas fa-sync-alt mr-2"></i>Buscar Eventos
+                </button>
+            </div>
+            
+            <div id="events-list" class="max-h-96 overflow-y-auto">
+                <div class="flex items-center justify-center h-32 text-gray-500">
+                    <p>Selecciona un período y haz clic en "Buscar Eventos"</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal para Editar Evento -->
+    <div id="editar-evento-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-slate-800 p-6 rounded-lg shadow-xl max-w-md w-full">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-semibold text-yellow-400">
+                    <i class="fas fa-edit mr-2"></i>Editar Evento
+                </h3>
+                <button type="button" class="text-gray-400 hover:text-white" onclick="closeModal('editar-evento-modal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-400 mb-1">Seleccionar Evento</label>
+                <select id="event-select" name="event_id" class="w-full px-3 py-2 bg-slate-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent">
+                    <option value="">Selecciona un evento...</option>
+                    <option value="1">Reunión de equipo (27 Abr, 10:00)</option>
+                    <option value="2">Almuerzo con cliente (28 Abr, 13:00)</option>
+                </select>
+                <button id="load-event-btn" class="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-500 transition mt-4">
+                    <i class="fas fa-download mr-2"></i>Cargar Evento
+                </button>
+            </div>
+            
+            <form id="edit-event-form" class="space-y-4 hidden">
+                <input type="hidden" name="event_id">
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-1">Título del Evento</label>
+                    <input type="text" name="title" class="w-full px-3 py-2 bg-slate-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent" required>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-1">Descripción</label>
+                    <textarea name="description" rows="3" class="w-full px-3 py-2 bg-slate-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent"></textarea>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-1">Fecha de Inicio</label>
+                        <input type="date" name="start_date" class="w-full px-3 py-2 bg-slate-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-1">Hora de Inicio</label>
+                        <input type="time" name="start_time" class="w-full px-3 py-2 bg-slate-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent" required>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-1">Fecha de Fin</label>
+                        <input type="date" name="end_date" class="w-full px-3 py-2 bg-slate-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-1">Hora de Fin</label>
+                        <input type="time" name="end_time" class="w-full px-3 py-2 bg-slate-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent" required>
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-1">Ubicación</label>
+                    <input type="text" name="location" class="w-full px-3 py-2 bg-slate-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent">
+                </div>
+                
+                <div class="flex justify-end pt-4">
+                    <button type="button" class="px-4 py-2 bg-gray-600 text-gray-300 rounded-lg hover:bg-gray-500 transition mr-2" onclick="closeModal('editar-evento-modal')">Cancelar</button>
+                    <button type="button" class="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-500 transition">Guardar Cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Modal para Eliminar Evento -->
+    <div id="eliminar-evento-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-slate-800 p-6 rounded-lg shadow-xl max-w-md w-full">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-semibold text-red-400">
+                    <i class="fas fa-trash-alt mr-2"></i>Eliminar Evento
+                </h3>
+                <button type="button" class="text-gray-400 hover:text-white" onclick="closeModal('eliminar-evento-modal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-400 mb-1">Seleccionar Evento</label>
+                <select id="delete-event-select" name="event_id" class="w-full px-3 py-2 bg-slate-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent">
+                    <option value="">Selecciona un evento...</option>
+                    <option value="1">Reunión de equipo (27 Abr, 10:00)</option>
+                    <option value="2">Almuerzo con cliente (28 Abr, 13:00)</option>
+                </select>
+            </div>
+            
+            <div id="delete-event-details" class="hidden mb-6 p-4 bg-gray-700 rounded-lg border border-gray-600">
+                <div class="mb-2"><span class="font-medium text-gray-400">Título:</span> <span id="delete-event-title">-</span></div>
+                <div class="mb-2"><span class="font-medium text-gray-400">Fecha:</span> <span id="delete-event-date">-</span></div>
+                <div><span class="font-medium text-gray-400">Ubicación:</span> <span id="delete-event-location">-</span></div>
+            </div>
+            
+            <div class="bg-red-900 bg-opacity-30 p-4 rounded-lg mb-6 border border-red-700 hidden" id="delete-warning">
+                <div class="flex items-start">
+                    <i class="fas fa-exclamation-triangle text-red-400 mt-1 mr-3"></i>
+                    <div>
+                        <h4 class="text-sm font-semibold text-red-400 mb-1">Advertencia</h4>
+                        <p class="text-sm text-gray-300">Esta acción no se puede deshacer. ¿Estás seguro de que deseas eliminar este evento?</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex justify-end">
+                <button type="button" class="px-4 py-2 bg-gray-600 text-gray-300 rounded-lg hover:bg-gray-500 transition mr-2" onclick="closeModal('eliminar-evento-modal')">Cancelar</button>
+                <button id="confirm-delete-btn" type="button" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-500 transition" disabled>Eliminar Evento</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal para Reagendar Evento -->
+    <div id="reagendar-evento-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-slate-800 p-6 rounded-lg shadow-xl max-w-md w-full">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-semibold text-purple-400">
+                    <i class="fas fa-calendar-alt mr-2"></i>Reagendar Evento
+                </h3>
+                <button type="button" class="text-gray-400 hover:text-white" onclick="closeModal('reagendar-evento-modal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-400 mb-1">Seleccionar Evento</label>
+                <select id="reschedule-event-select" name="event_id" class="w-full px-3 py-2 bg-slate-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent">
+                    <option value="">Selecciona un evento...</option>
+                    <option value="1">Reunión de equipo (27 Abr, 10:00)</option>
+                    <option value="2">Almuerzo con cliente (28 Abr, 13:00)</option>
+                </select>
+            </div>
+            
+            <div id="reschedule-event-details" class="hidden mb-4 p-4 bg-gray-700 rounded-lg border border-gray-600">
+                <div class="mb-2"><span class="font-medium text-gray-400">Título:</span> <span id="reschedule-event-title">-</span></div>
+                <div class="mb-2"><span class="font-medium text-gray-400">Fecha Actual:</span> <span id="reschedule-event-date">-</span></div>
+            </div>
+            
+            <div id="reschedule-event-form" class="space-y-4 hidden">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-1">Nueva Fecha de Inicio</label>
+                        <input type="date" name="new_start_date" class="w-full px-3 py-2 bg-slate-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-1">Nueva Hora de Inicio</label>
+                        <input type="time" name="new_start_time" class="w-full px-3 py-2 bg-slate-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent" required>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-1">Nueva Fecha de Fin</label>
+                        <input type="date" name="new_end_date" class="w-full px-3 py-2 bg-slate-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-1">Nueva Hora de Fin</label>
+                        <input type="time" name="new_end_time" class="w-full px-3 py-2 bg-slate-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent" required>
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-1">Motivo del Cambio</label>
+                    <textarea name="reason" rows="2" class="w-full px-3 py-2 bg-slate-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent" placeholder="Opcional - Esta información se enviará a los participantes"></textarea>
+                </div>
+            </div>
+            
+            <div class="flex justify-end pt-4">
+                <button type="button" class="px-4 py-2 bg-gray-600 text-gray-300 rounded-lg hover:bg-gray-500 transition mr-2" onclick="closeModal('reagendar-evento-modal')">Cancelar</button>
+                <button type="button" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-500 transition">Reagendar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    // Funciones para manejar los modales
+    function openGoogleCalendarModal() {
+        document.getElementById('google-calendar-modal').classList.remove('hidden');
+    }
+    
+    function openCrudModal(modalId) {
+        // Cerrar el modal de Google Calendar
+        document.getElementById('google-calendar-modal').classList.add('hidden');
+        
+        // Abrir el modal específico
+        document.getElementById(modalId + '-modal').classList.remove('hidden');
+    }
+    
+    function closeModal(modalId) {
+        document.getElementById(modalId).classList.add('hidden');
+    }
+    
+    // Manejar la visualización del rango de fechas personalizado
+    document.addEventListener('DOMContentLoaded', function() {
+        const periodSelect = document.getElementById('time-period');
+        const customDateRange = document.getElementById('custom-date-range');
+        
+        if (periodSelect && customDateRange) {
+            periodSelect.addEventListener('change', function() {
+                if (this.value === 'custom') {
+                    customDateRange.classList.remove('hidden');
+                } else {
+                    customDateRange.classList.add('hidden');
+                }
+            });
+        }
+        
+        // Manejar la selección de evento para eliminar
+        const deleteEventSelect = document.getElementById('delete-event-select');
+        if (deleteEventSelect) {
+            deleteEventSelect.addEventListener('change', function() {
+                const details = document.getElementById('delete-event-details');
+                const warning = document.getElementById('delete-warning');
+                const confirmBtn = document.getElementById('confirm-delete-btn');
+                
+                if (!this.value) {
+                    details.classList.add('hidden');
+                    warning.classList.add('hidden');
+                    confirmBtn.disabled = true;
+                } else {
+                    details.classList.remove('hidden');
+                    warning.classList.remove('hidden');
+                    confirmBtn.disabled = false;
+                    
+                    // Mostrar detalles de ejemplo del evento seleccionado
+                    if (this.value === '1') {
+                        document.getElementById('delete-event-title').textContent = 'Reunión de equipo';
+                        document.getElementById('delete-event-date').textContent = '27 Abril 2025, 10:00 - 11:30';
+                        document.getElementById('delete-event-location').textContent = 'Sala de Conferencias A';
+                    } else if (this.value === '2') {
+                        document.getElementById('delete-event-title').textContent = 'Almuerzo con cliente';
+                        document.getElementById('delete-event-date').textContent = '28 Abril 2025, 13:00 - 14:30';
+                        document.getElementById('delete-event-location').textContent = 'Restaurante Central';
+                    }
+                }
+            });
+        }
+        
+        // Manejar la selección de evento para reagendar
+        const rescheduleEventSelect = document.getElementById('reschedule-event-select');
+        if (rescheduleEventSelect) {
+            rescheduleEventSelect.addEventListener('change', function() {
+                const details = document.getElementById('reschedule-event-details');
+                const form = document.getElementById('reschedule-event-form');
+                
+                if (!this.value) {
+                    details.classList.add('hidden');
+                    form.classList.add('hidden');
+                } else {
+                    details.classList.remove('hidden');
+                    form.classList.remove('hidden');
+                    
+                    // Mostrar detalles de ejemplo del evento seleccionado
+                    if (this.value === '1') {
+                        document.getElementById('reschedule-event-title').textContent = 'Reunión de equipo';
+                        document.getElementById('reschedule-event-date').textContent = '27 Abril 2025, 10:00 - 11:30';
+                    } else if (this.value === '2') {
+                        document.getElementById('reschedule-event-title').textContent = 'Almuerzo con cliente';
+                        document.getElementById('reschedule-event-date').textContent = '28 Abril 2025, 13:00 - 14:30';
+                    }
+                }
+            });
+        }
+        
+        // Manejar la carga de eventos para editar
+        const loadEventBtn = document.getElementById('load-event-btn');
+        const eventSelect = document.getElementById('event-select');
+        if (loadEventBtn && eventSelect) {
+            loadEventBtn.addEventListener('click', function() {
+                const form = document.getElementById('edit-event-form');
+                
+                if (!eventSelect.value) {
+                    alert('Por favor, selecciona un evento primero');
+                    return;
+                }
+                
+                form.classList.remove('hidden');
+                
+                // Cargar datos de ejemplo según el evento seleccionado
+                if (eventSelect.value === '1') {
+                    form.querySelector('[name="title"]').value = 'Reunión de equipo';
+                    form.querySelector('[name="description"]').value = 'Revisión semanal de proyectos';
+                    form.querySelector('[name="start_date"]').value = '2025-04-27';
+                    form.querySelector('[name="start_time"]').value = '10:00';
+                    form.querySelector('[name="end_date"]').value = '2025-04-27';
+                    form.querySelector('[name="end_time"]').value = '11:30';
+                    form.querySelector('[name="location"]').value = 'Sala de Conferencias A';
+                } else if (eventSelect.value === '2') {
+                    form.querySelector('[name="title"]').value = 'Almuerzo con cliente';
+                    form.querySelector('[name="description"]').value = 'Discutir propuesta de colaboración';
+                    form.querySelector('[name="start_date"]').value = '2025-04-28';
+                    form.querySelector('[name="start_time"]').value = '13:00';
+                    form.querySelector('[name="end_date"]').value = '2025-04-28';
+                    form.querySelector('[name="end_time"]').value = '14:30';
+                    form.querySelector('[name="location"]').value = 'Restaurante Central';
+                }
+            });
+        }
+        
+        // Manejar la visualización de eventos de ejemplo
+        const fetchEventsBtn = document.getElementById('fetch-events-btn');
+        if (fetchEventsBtn) {
+            fetchEventsBtn.addEventListener('click', function() {
+                const eventsList = document.getElementById('events-list');
+                
+                // Mostrar loader
+                eventsList.innerHTML = `
+                    <div class="flex flex-col items-center justify-center h-32">
+                        <div class="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+                        <p class="text-gray-400">Cargando eventos...</p>
+                    </div>
+                `;
+                
+                // Simulación de carga (2 segundos)
+                setTimeout(() => {
+                    // Ejemplo de eventos
+                    eventsList.innerHTML = `
+                        <div class="bg-slate-700 p-3 rounded-lg mb-3">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h4 class="font-medium text-white">Reunión de equipo</h4>
+                                    <p class="text-sm text-gray-400">Revisión semanal de proyectos</p>
+                                    <div class="text-xs text-gray-500 mt-1"><i class="fas fa-map-marker-alt mr-1"></i>Sala de Conferencias A</div>
+                                </div>
+                                <div class="text-right ml-4">
+                                    <div class="text-xs font-medium bg-blue-900 text-blue-200 px-2 py-1 rounded">27 Abr</div>
+                                    <div class="text-xs text-gray-400 mt-1">10:00 - 11:30</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-slate-700 p-3 rounded-lg mb-3">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h4 class="font-medium text-white">Almuerzo con cliente</h4>
+                                    <p class="text-sm text-gray-400">Discutir propuesta de colaboración</p>
+                                    <div class="text-xs text-gray-500 mt-1"><i class="fas fa-map-marker-alt mr-1"></i>Restaurante Central</div>
+                                </div>
+                                <div class="text-right ml-4">
+                                    <div class="text-xs font-medium bg-blue-900 text-blue-200 px-2 py-1 rounded">28 Abr</div>
+                                    <div class="text-xs text-gray-400 mt-1">13:00 - 14:30</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }, 2000);
+            });
+        }
+    });
+</script>
+{% endblock %}
+{% endblock %}
+                            
